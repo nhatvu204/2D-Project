@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,20 +14,31 @@ public class Player : MonoBehaviour
     private bool isGrounded = true;
     private bool isJumping = false;
     private bool isAttack = false;
+    private bool isDead = false;
 
     private float horizontal;
 
     private string currentAnimName;
 
+    private int coin = 0;
+
+    private Vector3 savePoint;
+
     // Start is called before the first frame update
     void Start()
     {
-        
+        SavePoint();
+        OnInit();
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
+        if (isDead)
+        {
+            return;
+        }
+
         isGrounded = CheckGrounded();
 
         horizontal = Input.GetAxisRaw("Horizontal");
@@ -47,7 +59,6 @@ public class Player : MonoBehaviour
             //Jump
             if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
             {
-                Debug.Log("Space Pressed");
                 Jump();
             }
             
@@ -90,6 +101,15 @@ public class Player : MonoBehaviour
             ChangeAnim("idle");
             rb.velocity = Vector2.zero;
         }
+    }
+
+    public void OnInit()
+    {
+        isDead = false;
+        isAttack = false;
+
+        transform.position = savePoint;
+        ChangeAnim("idle");
     }
 
     private bool CheckGrounded()
@@ -135,6 +155,27 @@ public class Player : MonoBehaviour
             anim.ResetTrigger(animName);
             currentAnimName = animName;
             anim.SetTrigger(currentAnimName);
+        }
+    }
+
+    internal void SavePoint()
+    {
+        savePoint = transform.position;
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.tag == "Coin")
+        {
+            coin++;
+            Destroy(collision.gameObject);
+        }
+        if (collision.tag == "DeathZone")
+        {
+            isDead = true;
+            ChangeAnim("die");
+
+            Invoke(nameof(OnInit), 1f);
         }
     }
 }
