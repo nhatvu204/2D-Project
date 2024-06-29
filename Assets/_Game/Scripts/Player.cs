@@ -3,10 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player : MonoBehaviour
+public class Player : Character
 {
     [SerializeField] private Rigidbody2D rb;
-    [SerializeField] private Animator anim;
+    
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private float speed = 5;
     [SerializeField] private float jumpForce = 350;
@@ -18,7 +18,7 @@ public class Player : MonoBehaviour
 
     private float horizontal;
 
-    private string currentAnimName;
+    
 
     private int coin = 0;
 
@@ -28,7 +28,6 @@ public class Player : MonoBehaviour
     void Start()
     {
         SavePoint();
-        OnInit();
     }
 
     // Update is called once per frame
@@ -57,7 +56,7 @@ public class Player : MonoBehaviour
             }
 
             //Jump
-            if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+            if (Input.GetKeyDown(KeyCode.F) && isGrounded)
             {
                 Jump();
             }
@@ -103,13 +102,25 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void OnInit()
+    public override void OnInit()
     {
+        base.OnInit();
+
         isDead = false;
         isAttack = false;
 
         transform.position = savePoint;
         ChangeAnim("idle");
+    }
+
+    public override void OnDespawn()
+    {
+        base.OnDespawn();
+    }
+
+    protected override void OnDeath()
+    {
+        base.OnDeath();
     }
 
     private bool CheckGrounded()
@@ -146,16 +157,6 @@ public class Player : MonoBehaviour
         isJumping = true;
         ChangeAnim("jump");
         rb.AddForce(jumpForce * Vector2.up);
-    }
-
-    private void ChangeAnim(string animName)
-    {
-        if (currentAnimName != animName)
-        {
-            anim.ResetTrigger(animName);
-            currentAnimName = animName;
-            anim.SetTrigger(currentAnimName);
-        }
     }
 
     internal void SavePoint()
