@@ -18,27 +18,30 @@ public class Player : Character
     private bool isGrounded = true;
     private bool isJumping = false;
     private bool isAttack = false;
-    private bool isDead = false;
+    //private bool isDead = false;
 
     private float horizontal;
-
-    
 
     private int coin = 0;
 
     private Vector3 savePoint;
 
-    // Update is called once per frame
-    void FixedUpdate()
+    private void Awake()
     {
-        if (isDead)
+        coin = PlayerPrefs.GetInt("coin", 0);
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (IsDead)
         {
             return;
         }
 
         isGrounded = CheckGrounded();
 
-        horizontal = Input.GetAxisRaw("Horizontal");
+        //horizontal = Input.GetAxisRaw("Horizontal");
 
         if (isAttack)
         {
@@ -54,7 +57,7 @@ public class Player : Character
             }
 
             //Jump
-            if (Input.GetKeyDown(KeyCode.F) && isGrounded)
+            if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
             {
                 Jump();
             }
@@ -88,7 +91,7 @@ public class Player : Character
         //Move
         if (Mathf.Abs(horizontal) > 0.1f)
         {
-            rb.velocity = new Vector2(horizontal * Time.fixedDeltaTime * speed, rb.velocity.y);
+            rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
 
             transform.rotation = Quaternion.Euler(new Vector3(0, horizontal > 0 ? 0 : 180, 0));
         }
@@ -104,7 +107,6 @@ public class Player : Character
     {
         base.OnInit();
 
-        isDead = false;
         isAttack = false;
 
         transform.position = savePoint;
@@ -112,6 +114,7 @@ public class Player : Character
         DeactiveAttack();
 
         SavePoint();
+        UIManager.Instance.SetCoin(coin);
     }
 
     public override void OnDespawn()
@@ -133,7 +136,7 @@ public class Player : Character
         return hit.collider != null;
     }
 
-    private void Attack()
+    public void Attack()
     {
         ChangeAnim("attack");
         isAttack = true;
@@ -142,7 +145,7 @@ public class Player : Character
         Invoke(nameof(DeactiveAttack), 0.5f);
     }
 
-    private void Throw()
+    public void Throw()
     {
         ChangeAnim("throw");
         isAttack = true;
@@ -157,7 +160,7 @@ public class Player : Character
         isAttack = false;
     }
 
-    private void Jump()
+    public void Jump()
     {
 
         isJumping = true;
@@ -180,16 +183,22 @@ public class Player : Character
         attackArea.SetActive(false);
     }
 
+    public void SetMove(float horizontal)
+    {
+        this.horizontal = horizontal;
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.tag == "Coin")
         {
             coin++;
+            PlayerPrefs.SetInt("coin", coin);
+            UIManager.Instance.SetCoin(coin);
             Destroy(collision.gameObject);
         }
         if (collision.tag == "DeathZone")
         {
-            isDead = true;
             ChangeAnim("die");
 
             Invoke(nameof(OnInit), 1f);
