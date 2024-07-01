@@ -11,6 +11,8 @@ public class Enemy : Character
 
     [SerializeField] private GameObject attackArea;
 
+    [SerializeField] private Heal healPrefab;
+
     private IState currentState;
 
     private bool isRight = true;
@@ -37,6 +39,7 @@ public class Enemy : Character
     public override void OnDespawn()
     {
         base.OnDespawn();
+        Instantiate(healPrefab, transform.position, transform.rotation);
         Destroy(healthBar.gameObject);
         Destroy(gameObject);
     }

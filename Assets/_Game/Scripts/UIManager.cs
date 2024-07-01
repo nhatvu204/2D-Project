@@ -21,9 +21,27 @@ public class UIManager : MonoBehaviour
     }
 
     [SerializeField] Text coinText;
+    [SerializeField] GameObject pauseMenu;
 
     public void SetCoin(int coin)
     {
         coinText.text = coin.ToString();
+    }
+
+    public void PauseGame()
+    {
+        Time.timeScale = 0;
+        pauseMenu.SetActive(true);
+    }
+
+    public void ContinueGame()
+    {
+        Time.timeScale = 1;
+        pauseMenu.SetActive(false);
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();
     }
 }

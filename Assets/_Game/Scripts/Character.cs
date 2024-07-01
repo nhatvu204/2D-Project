@@ -64,5 +64,18 @@ public class Character : MonoBehaviour
         }
     }
 
-    
+    public void OnHeal()
+    {
+        if (!IsDead)
+        {
+            hp += 30;
+
+            if (hp > 100)
+            {
+                hp = 100;
+            }
+
+            healthBar.SetNewHp(hp);
+        }
+    }
 }
